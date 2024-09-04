@@ -1,0 +1,881 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/soine_ico.png">
+  <link rel="icon" href="/img/soine_ico.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Blauter">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="算法题应有的出题规范（写给sastoj）  给算法竞赛出题涉及题面，测试点等多个方面，由于没有规范的情况下，出题人容易出格式千奇百怪，题面表达不清等问题，所以在这里给出sastoj特色出题规范。  题面书写  此部分的规范不对愚人节比赛的题目有任何约束力。但应遵守本文档的其他部分。  组成部分 通常来说一道完整的题面应包含一下部分（*表示可省略）：   *题目背景。讲述一道题目的背景，可以不写。题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法题应有的出题规范（写给sastoj）">
+<meta property="og:url" content="http://example.com/2024/09/04/%E5%87%BA%E9%A2%98%E8%A7%84%E8%8C%83/index.html">
+<meta property="og:site_name" content="Blue Space">
+<meta property="og:description" content="算法题应有的出题规范（写给sastoj）  给算法竞赛出题涉及题面，测试点等多个方面，由于没有规范的情况下，出题人容易出格式千奇百怪，题面表达不清等问题，所以在这里给出sastoj特色出题规范。  题面书写  此部分的规范不对愚人节比赛的题目有任何约束力。但应遵守本文档的其他部分。  组成部分 通常来说一道完整的题面应包含一下部分（*表示可省略）：   *题目背景。讲述一道题目的背景，可以不写。题">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/sastoj.svg">
+<meta property="article:published_time" content="2024-09-04T14:13:10.000Z">
+<meta property="article:modified_time" content="2024-09-04T14:17:52.552Z">
+<meta property="article:author" content="Blauter">
+<meta property="article:tag" content="OI">
+<meta property="article:tag" content="ACM">
+<meta property="article:tag" content="出题">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/sastoj.svg">
+  
+  
+  
+  <title>算法题应有的出题规范（写给sastoj） - Blue Space</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Blue Space</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="算法题应有的出题规范（写给sastoj）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-04 22:13" pubdate>
+          2024年9月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">算法题应有的出题规范（写给sastoj）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>算法题应有的出题规范（写给sastoj）</h1>
+<blockquote>
+<p>给算法竞赛出题涉及题面，测试点等多个方面，由于没有规范的情况下，出题人容易出格式千奇百怪，题面表达不清等问题，所以在这里给出<code>sastoj</code>特色出题规范。</p>
+</blockquote>
+<h2 id="题面书写">题面书写</h2>
+<blockquote>
+<p>此部分的规范不对愚人节比赛的题目有任何约束力。但应遵守本文档的其他部分。</p>
+</blockquote>
+<h3 id="组成部分">组成部分</h3>
+<p>通常来说一道完整的题面应包含一下部分（*表示可省略）：</p>
+<ol>
+<li>
+<p>*题目背景。讲述一道题目的背景，可以不写。题目背景用于介绍题目所属故事，便于读者理解，也可以用于增加题目趣味性。</p>
+</li>
+<li>
+<p><strong>题目描述</strong>。题目的核心部分。要 <strong>没有歧义</strong> 地<strong>符合格式</strong>地指出任务的要求。</p>
+</li>
+<li>
+<p><strong>输入/输出格式</strong>。指出输入的形式，类型和数据范围。</p>
+</li>
+<li>
+<p><strong>输入/输出样例</strong>。表示给出的一种输入以及正确程序应该输出的结果。样例可以有多个。</p>
+</li>
+<li>
+<p>*补充。对题目可能产生歧义的部分作出解释，或对样例进行说明。</p>
+</li>
+</ol>
+<h3 id="题目描述的规范">题目描述的规范</h3>
+<p>题目描述是对于一道题目的核心部分。对于一个合格的题面，题目描述部分应当<strong>没有任何歧义地指出</strong>一个题目所要求解决的问题。有以下几条可能出现失误的要点必须遵守：</p>
+<ul>
+<li><strong>对于一个需要解释的名词（尽管约定俗成）， 必须指出它的具体定义。必要时可以使用数学表达式。</strong></li>
+</ul>
+<p>下面给出一部分常用名词的具体定义：</p>
+<p><em>排列(Permutation)：一段1~n的整数序列。保证1~n每个数字有且仅出现一次。</em></p>
+<p><em>子序列(subsequence):从给定序列中去除一些元素，而不改变其他元素之间相对位置而得到的。</em></p>
+<p><em>子串(substring):表示 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi></mrow><annotation encoding="application/x-tex">S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span></span></span></span> 串中从 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span> 到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi></mrow><annotation encoding="application/x-tex">j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span> 这一段，也就是顺次排列 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false">[</mo><mi>i</mi><mo stretchy="false">]</mo><mo separator="true">,</mo><mi>S</mi><mo stretchy="false">[</mo><mi>i</mi><mo>+</mo><mn>1</mn><mo stretchy="false">]</mo><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><mi>S</mi><mo stretchy="false">[</mo><mi>j</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">S[i],S[i+1],\ldots,S[j]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span><span class="mclose">]</span></span></span></span> 形成的字符串。</em></p>
+<p><em>自环 (loop)：对 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi></mrow><annotation encoding="application/x-tex">E</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span></span></span></span> 中的边 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mo stretchy="false">(</mo><mi>u</mi><mo separator="true">,</mo><mi>v</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">e = (u, v)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">u</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mclose">)</span></span></span></span>，若 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">u = v</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">u</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span></span></span></span>，则 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">e</span></span></span></span> 被称作一个自环。</em></p>
+<p>更多相关基础词语的定义，参见<a target="_blank" rel="noopener" href="https://oi-wiki.org/">oi-wiki</a>或者维基百科等资源。</p>
+<ul>
+<li><strong>对于每一个需要作为输入输出数据的数（或作为运算时的中间变量），必须使用不同的字母进行标识。字母旁边最好标上对应数据范围。（若没有，则须在补充中说明）</strong></li>
+</ul>
+<p>比如，下面这样的题目（a+b problem）的描述是不被允许的：</p>
+<blockquote>
+<p>给出两个整数，请输出它们的和。</p>
+</blockquote>
+<p>正确的表述如下:</p>
+<blockquote>
+<p>给出两个整数<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span> （<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo>≤</mo><mn>1</mn><msup><mn>0</mn><mn>8</mn></msup></mrow><annotation encoding="application/x-tex">a, b \leq 10^8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">a</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span>），输出<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a+b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span>。</p>
+</blockquote>
+<ul>
+<li><strong>题目描述可以延续题目背景所说的世界观所描述。但是在写出要求（约束条件）的时候，必须要标准写出。不能掺杂任何模棱两可的词汇。</strong></li>
+</ul>
+<p>写题目的大忌是认为做题者会往理所应当的思路上来理解自己的题目。然而事实上，不同人可能会有各种的理解（这可能也是赛时clarification的意义）。我们要保证的是在不能让做题者产生任何不符合标准程序的理解。一种解决方式是给自己的题面 <em>“找茬”</em> 。</p>
+<h3 id="IO格式、样例及补充">IO格式、样例及补充</h3>
+<p><strong>输入输出格式部分</strong>：</p>
+<p>输入格式应该标明总共的行数，以及每行需要输入的内容。请注意，这里要输入的所有内容也一定要给出字母。</p>
+<p>sastoj给出了可以选择行末空格以及文末换行的功能，所以应当在体面中也对此有所表明。</p>
+<p><strong>输入输出样例</strong>：</p>
+<p>每一个样例应该给出<code>（输入/输出）#序号</code>的小标题。并在下面给出多行代码块。</p>
+<p><strong>补充</strong>：</p>
+<p>补充内容一定要写上样例解释（<em>样例解释的规范参见“题目描述的规范”</em>）便于做题者进行理解。如果有参考的资料，引用，或者附件，都应该在这一段中标明。</p>
+<p>如果题目描述中没有数据范围，则务必在此补充上。</p>
+<h2 id="题面格式">题面格式</h2>
+<h3 id="关于markdown">关于markdown</h3>
+<p>我们使用<code>markdown</code>来书写题面。markdown是一种设计来易于阅读、编写和理解的标记语言。</p>
+<p>要学习markdown语法可见<a target="_blank" rel="noopener" href="https://markdown.com.cn/basic-syntax/">官方教程</a></p>
+<p>在<strong>题面书写</strong>部分，我们已经列出了一道题面的组成部分，这些部分应当都使用二级标题，一级标题则用来写此题的题面。</p>
+<p>具体来说，markdown应如下图所示：</p>
+<figure class="highlight md"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs md"><span class="hljs-section"># 标题</span><br><span class="hljs-section">## 题目背景</span><br><span class="hljs-section">## 题目描述</span><br><span class="hljs-section">## 输入格式</span><br><span class="hljs-section">## 输出格式</span><br><span class="hljs-section">## 输入输出样例</span><br><span class="hljs-section">### 输入#1</span><br><span class="hljs-section">### 输出#1</span><br><span class="hljs-section">### 输入#2</span><br><span class="hljs-section">### 输出#2</span><br><span class="hljs-section">## 补充</span><br></code></pre></td></tr></table></figure>
+<h3 id="关于markdownlint">关于markdownlint</h3>
+<blockquote>
+<p>The Markdown markup language is designed to be easy to read, write, and understand. It succeeds - and its flexibility is both a benefit and a drawback. Many styles are possible, so formatting can be inconsistent. Some constructs don’t work well in all parsers and should be avoided. The CommonMark specification standardizes parsers - but not authors.</p>
+</blockquote>
+<p><code>markdownlint</code> 是一套用来规范markdown书写格式的工具。有了markdownlint，写作者的语法将更为规范。</p>
+<p>使用markdownlint可以按照<a target="_blank" rel="noopener" href="https://github.com/DavidAnson/markdownlint">GitHub官网</a>的方式，使用nodejs进行下载，也可以使用<code>vscode</code>，<code>obsidian</code>等工具自带的markdownlint扩展。</p>
+<p>关于sastoj的markdownlint规范，请点击<a target="_blank" rel="noopener" href="https://github.com/NJUPT-SAST/sastoj-docs/blob/main/.markdownlint.jsonc">此链接</a>。</p>
+<p><strong>使用方式</strong>：将上述链接中的文件复制到你所写markdown文件所在的同一工作环境中以使markdownlint按照规定的<code>.markdownlint.jsonc</code>文件所述的规范进行错误提醒。</p>
+<h3 id="题面中所涉及的markdown规范">题面中所涉及的markdown规范</h3>
+<ol>
+<li>
+<p>所有出现的变量，数字，数学符号，公式等，必须使用<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>a</mi><mi>t</mi><mi>e</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">Latex</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">L</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">e</span><span class="mord mathnormal">x</span></span></span></span>。</p>
+</li>
+<li>
+<p>在一些需要注意的要点中，可以使用<strong>加粗符号来重点说明</strong>。</p>
+</li>
+<li>
+<p>一些专有的英文名词，可以使用<code>代码块</code>标注。</p>
+</li>
+<li>
+<p>输入输出样例，必须包含在<code>多行代码块</code>中。</p>
+</li>
+<li>
+<p>如果必须要插入图片（用作样例的解释或者具体说明等）须提前存在图床中再使用<code>![]()</code>的格式。</p>
+</li>
+<li>
+<p><em>不要</em><strong>滥用</strong> <s>markdown</s>的<code>特殊</code><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>格式</mtext></mrow><annotation encoding="application/x-tex">格式</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord cjk_fallback">格式</span></span></span></span>。</p>
+</li>
+</ol>
+<h2 id="测试点设置">测试点设置</h2>
+<p><code>sastoj</code>目前仅支持常规题的测试点。测试点可以有多个，每一个都可以有对应的分数点。如果你程序的输出结果与数据点的<code>.out</code>或<code>.ans</code>文件相同，视为通过该测试点，应该获得对应分数。</p>
+<h3 id="出数据的原则">出数据的原则</h3>
+<p>我们在生成一个题目的数据时，应当遵守如下原则：</p>
+<ul>
+<li><strong>如果是新手向的比赛（非ICPC赛制），最好在数据点中加入样例。</strong></li>
+</ul>
+<p>作为初次接触程序设计竞赛的新手，他们可能对一道题目如何提交，如何判分等步骤产生困惑，只能根据样例来判断自己的代码是否正确。为了不让他们感到困惑，最好在数据点中加入样例。</p>
+<ul>
+<li><strong>对于非ICPC赛制的比赛，数据范围的设置应当有一定梯度。</strong></li>
+</ul>
+<p>根据算法的优劣的区别，一道题目的分数也应当有所区别，分数在一定程度上更是对于一道题目完成度的体现。比如说，对一道数据结构题目，应当至少提供<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>30</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">30\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">30%</span></span></span></span>的答案正确的暴力算法分数。</p>
+<ul>
+<li><strong>一道完整数据点的题目应当有针对特判的数据。</strong></li>
+</ul>
+<p>在许多题目中，对于一些特殊的数据，不能使用常规的算法来解决问题。为了考察参赛者思维的严谨性，应当有一些特殊的数据来考察参赛者是否考虑到了这种情况。</p>
+<ul>
+<li><strong>只有复杂度优秀的算法才能够获得满分，但尽量不要卡常数。</strong></li>
+</ul>
+<p>这要求出题者需要一定程度上严格把握时间、空间限制。既不能出现数据偏弱，可以用暴力卡过去的情况，也不能出现数据太强，参赛者屡屡被卡常的情况。出题者应对比赛用评测机有一定估量，在写标准程序的时候，可以故意把常数写的大一点。</p>
+<ul>
+<li><strong>对于ICPC赛制的比赛，应当有能hack掉每一种错误算法的数据。</strong></li>
+</ul>
+<p>常用(<s>臭名昭著</s>)的方法有：生成菊花图，生成链，卡单哈希等等。当然，这些不一定要做，但是针对生成错误答案的程序应该将其hack掉。</p>
+<ul>
+<li><strong>使用lf进行换行，而非crlf。</strong></li>
+</ul>
+<p>算法竞赛的评测机采用<code>Linux</code>系统，在 Linux 和 Mac 上，<code>LF</code>相当于新文本行的开始。如果采用windows系统所输出的回车+换行符<code>CRLF</code>的话，可能会产生一下不确定的错误。</p>
+<p>虽然sastoj有将<code>CRLF</code>转化为<code>LF</code>的功能，但我们仍然建议在出数据的时候就以<code>LF</code>进行换行。</p>
+<h3 id="工具与方法">工具与方法</h3>
+<p>对于较大的数据点，手动输入肯定是不现实的。下面有一部分出数据的工具与方法介绍：</p>
+<h4 id="编写python程序">编写python程序</h4>
+<p><code>python</code>由于其轻量化的优势，常常用来生成一道题目的测试数据（当然，您也可以使用其他的语言）。这里仅介绍python编写数据生成器的方法。</p>
+<p>以<code>a+b problem</code>为例，下面是生成数据的代码。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> random<br><span class="hljs-keyword">import</span> os<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>，<span class="hljs-number">11</span>): <span class="hljs-comment"># 我们生成1.in,1.out,2.in,2.out....</span><br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;i&#125;</span>.in&quot;</span>, <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>        a = random.randint(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>)<br>        b = random.randint(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>)<br>        <span class="hljs-comment"># 我们生成1~100000范围内的整数a和b </span><br>        f.write(<span class="hljs-built_in">bytes</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;a&#125;</span> <span class="hljs-subst">&#123;b&#125;</span>\n&quot;</span>, <span class="hljs-string">&quot;utf-8&quot;</span>))<br>        <span class="hljs-comment">#将生成的数据写入文件。</span><br>        <span class="hljs-comment">#注意：为了保证写入lf而不是crlf，我们将字符串以utf-8编码，转化为二进制写入</span><br>        os.system(<span class="hljs-string">f&quot;.\std.exe &lt; <span class="hljs-subst">&#123;i&#125;</span>.in &gt; <span class="hljs-subst">&#123;i&#125;</span>.out&quot;</span>)<br>        <span class="hljs-comment"># std.exe为出题者所写的标准程序。这条命令表示以&#123;i&#125;.in为输入，以std.exe为程序，将输出写入&#123;i&#125;.out文件。</span><br></code></pre></td></tr></table></figure>
+<h4 id="使用CYaRon">使用<code>CYaRon</code></h4>
+<p><code>CYaRon</code>是洛谷开发的一款开源的数据生成工具。其中支持生成不同类型的树、图等数据。当然，CYaRon也是基于Python的。</p>
+<p>CYaRon的稳定版本可以从pip获取:</p>
+<p><code>pip install cyaron</code></p>
+<p>在此之前，需要准备好Python。</p>
+<p>当然，您可以参照文档进行<a target="_blank" rel="noopener" href="https://github.com/luogu-dev/cyaron/wiki">学习</a>。</p>
+<h2 id="配置文件">配置文件</h2>
+<p>为了设置题目的时空限制，设置题目类型以及配置数据点结构， <code>sastoj</code> 设置了一套配置文件的规则。</p>
+<p>对于不同题型的题目的配置文件方法，详情见<a target="_blank" rel="noopener" href="https://github.com/Jisu-Woniu/rsjudge-test-cases-schema/tree/main/out">示例</a></p>
+<p>作为出题者，一般情况下我们使用<code>.toml</code>格式写配置文件。配置文件中能够标明题目的时空限制，分数分布以及数据点的关系等等。</p>
+<h3 id="使用yapyto生成配置文件">使用yapyto生成配置文件</h3>
+<p><code>yapyto</code>是一款基于python的<strong>sastoj专用</strong>配置文件生成工具。主要功能有</p>
+<ol>
+<li>
+<p>根据当前的数据点自动生成所需的配置文件</p>
+</li>
+<li>
+<p>将<a href="hydro.ac"><code>hydro</code></a>上的题目便捷转化为sastoj所需的格式。</p>
+</li>
+<li>
+<p>给定标程以及对应的数据生成器，直接生成输入输出文件和对应的配置文件。</p>
+</li>
+</ol>
+<p>您需要把yapyto的<a target="_blank" rel="noopener" href="https://github.com/FishZe/yapyto">GitHub仓库</a><code>clone</code>到本地进行使用。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E5%90%91/" class="category-chain-item">技术向</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/OI/" class="print-no-link">#OI</a>
+      
+        <a href="/tags/ACM/" class="print-no-link">#ACM</a>
+      
+        <a href="/tags/%E5%87%BA%E9%A2%98/" class="print-no-link">#出题</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>算法题应有的出题规范（写给sastoj）</div>
+      <div>http://example.com/2024/09/04/出题规范/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Blauter</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/30/%E8%AE%B0%E4%BA%BA%E7%94%9F%E4%B8%AD%E7%AC%AC%E4%B8%80%E6%AC%A1XCPC%E6%AF%94%E8%B5%9B/" title="记人生中第一次XCPC">
+                        <span class="hidden-mobile">记人生中第一次XCPC</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"euLX4zhZFhWzYx9uVn1WRoyf-gzGzoHsz","appKey":"QPSYlNxbkCar1LhSZqLt3YYY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
