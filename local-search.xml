@@ -4,6 +4,39 @@
   
   
   <entry>
+    <title>XSS的N种形态</title>
+    <link href="/2025/08/24/XSS%E7%9A%84N%E7%A7%8D%E5%BD%A2%E6%80%81/"/>
+    <url>/2025/08/24/XSS%E7%9A%84N%E7%A7%8D%E5%BD%A2%E6%80%81/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>众所周知，前端三大件：HTML, JS, CSS，可以说是喂给浏览器的一套说明书，写好了它的渲染，执行的一系列逻辑，转而交由浏览器去执行。正因为这一点，前端跟后端、客户端相比不同的是，不管是谁，都能看到现在正在执行的前端的代码是什么。<br>我如果能借着这个，来让所有的网站来按照我自己定的规矩来执行，那可不就太棒了吗。<br>可是前端开发者们肯定会让我得逞的。就这样，我想要先了解了解前端最著名的一种攻击——XSS攻击。</p></blockquote><h1>XSS威胁</h1><p>第一次学XSS的时候，想到了“韦一敏效应”。其实似乎也和之前一个老笑话有关：</p><blockquote><p>面试官：你好，你的名字是？<br>面试者：我叫你被录用了。<br>面试官：你好，你被录用了！</p></blockquote><p>正经地说，跨站脚本攻击XSS（Cross - Site Scripting）指的是恶意攻击者往Web页面里插入恶意Html代码，利用网站漏洞从用户那里恶意盗取信息的攻击方式。</p><p>以白帽子的视角来说，一般他们在尝试对网页进行XSS时，JS的执行内容一般只有一个友善的<code>alert(1)</code>，在浏览器中弹出一个弹窗，在不产生什么影响的情况下，标识出此页面被成功注入XSS，就可以去跟网站那边要奖金了（确信）。<br>![](/img/Pasted image 20250823222711.png)<br>成功注入XSS的一段代码，被称作<strong>payload</strong>。</p><h1>XSS的N种形态</h1><p>这里主要讲可以用哪些方法来达成XSS。<br>列举几个经典的XSS案例：</p><h2 id="经典的-script">经典的&lt;script&gt;</h2><p>既然在html中，js是在<code>&lt;script&gt;</code>标签里面执行的，那我们自然而然能想到的XSS攻击，肯定也都是把攻击的信息写在<code>script</code>标签里面再去想办法植入到html当中。<br>这样的话，作为攻击者，需要去想办法找到网页在哪里可以允许插入用户的html。<br>那其实这种地方还是相当多的，比如说一个评论区的html如下：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;comment-box&quot;</span>&gt;</span><br> <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;comment-author&quot;</span>&gt;</span>comment :<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span> <br> <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;comment-body&quot;</span>&gt;</span> <br> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span> <br> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br></code></pre></td></tr></table></figure><p>网页允许你插入评论，而你发了一条<code>&lt;script&gt; alert('XSS!'); &lt;/script&gt;</code>。<br>那网页就会变成：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;comment-box&quot;</span>&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;comment-author&quot;</span>&gt;</span>comment:<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br> <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;comment-body&quot;</span>&gt;</span> <br> <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">  <span class="hljs-title function_">alert</span>(<span class="hljs-string">&#x27;XSS!&#x27;</span>); </span><br><span class="language-javascript"> </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br></code></pre></td></tr></table></figure><p>用户把攻击用的js给放进了html里面，让浏览器执行了这一段攻击代码，并且由于评论会被存储在服务器上，其他看这条评论的用户也都会被执行这个XSS，这就很恐怖了。</p><p>比较经典的注入script标签的地方就是矢量图<code>&lt;svg&gt;</code>，矢量图跟html一样也是一种XML，浏览器也可以去执行它，这代表一张矢量图里面，也可以内嵌JS代码（不过想想这也是合理的），但就是这么合理的一个地方，能被钻各种空子。<br>因为网页基本不可能不用到图片，支持图片就没有理由不支持svg（所以也可以直接简单粗暴地禁止svg来防止这种形式的XSS），那svg可以写成这样：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> standalone=<span class="hljs-string">&quot;no&quot;</span>?&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;200&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;200&quot;</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;http://www.w3.org/2000/svg&quot;</span> <span class="hljs-attr">version</span>=<span class="hljs-string">&quot;1.1&quot;</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"></span><br><span class="language-javascript">    <span class="hljs-title function_">alert</span>(<span class="hljs-string">&#x27;XSS from SVG file!&#x27;</span>);</span><br><span class="language-javascript">  </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">y</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;180&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;180&quot;</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">&quot;blue&quot;</span> <span class="hljs-attr">onload</span>=<span class="hljs-string">&quot;alert(&#x27;XSS from onload event!&#x27;)&quot;</span> /&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">text</span> <span class="hljs-attr">x</span>=<span class="hljs-string">&quot;30&quot;</span> <span class="hljs-attr">y</span>=<span class="hljs-string">&quot;100&quot;</span> <span class="hljs-attr">font-size</span>=<span class="hljs-string">&quot;20&quot;</span> <span class="hljs-attr">fill</span>=<span class="hljs-string">&quot;white&quot;</span>&gt;</span>這是一個圖片<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span><br></code></pre></td></tr></table></figure><p>这张图片一被复制，被网站储存起来，就是一个XSS攻击成功了。</p><p>或者，我们也可以不用利用网页的功能，而是直接在url里的一些可以读取html代码的地方写一段XSS，都能达到类似的效果。总之，凡是有机会在html里面插入一下自己的内容的地方，都可以这么XSS一下。</p><h2 id="属性也可以插入js">属性也可以插入js</h2><p>诸如<code>src</code>,<code>href</code>，html标签里的属性有很多。而这其中有一部分的属性，是可以插入js代码的，我们把它称为<code>event_handler</code>。比如<code>button</code>的<code>onclick</code>属性，一般情况下，on开头的属性都属于event_handler。<br>甚至说一张普通的图片标签，也可以注入XSS。</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;not_exist&quot;</span> <span class="hljs-attr">onerror</span>=<span class="hljs-string">&quot;alert(1)&quot;</span>&gt;</span><br></code></pre></td></tr></table></figure><h2 id="直接注入js">直接注入js</h2><p>Javascript的<code>eval()</code>函数可以把字符串当作JS来处理。<br>如果有一个大意的前端开发者，他把eval()函数中的内容交给了用户去输入（不一定出现在输入框，也可能是url中的一个字段，那会发生什么？XSS。</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;content&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"></span><br><span class="language-javascript">        <span class="hljs-keyword">function</span> <span class="hljs-title function_">loadContent</span>(<span class="hljs-params"></span>) &#123;</span><br><span class="language-javascript">            <span class="hljs-comment">// 例如，URL 是 http://example.com/vulnerable.html#&#123;&quot;user&quot;:&quot;Alice&quot;&#125;</span></span><br><span class="language-javascript">            <span class="hljs-keyword">let</span> dataString = <span class="hljs-variable language_">window</span>.<span class="hljs-property">location</span>.<span class="hljs-property">hash</span>.<span class="hljs-title function_">substring</span>(<span class="hljs-number">1</span>); <span class="hljs-comment">// 移除 &#x27;#&#x27;</span></span><br><span class="language-javascript"></span><br><span class="language-javascript">            <span class="hljs-keyword">if</span> (dataString) &#123;</span><br><span class="language-javascript">                <span class="hljs-comment">// 開發者錯誤地認為 eval 可以方便地將字串轉為物件</span></span><br><span class="language-javascript">                <span class="hljs-keyword">let</span> data = <span class="hljs-built_in">eval</span>(<span class="hljs-string">&#x27;(&#x27;</span> + <span class="hljs-built_in">decodeURIComponent</span>(dataString) + <span class="hljs-string">&#x27;)&#x27;</span>);</span><br><span class="language-javascript">                <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;content&#x27;</span>).<span class="hljs-property">innerText</span> = <span class="hljs-string">&#x27;你好, &#x27;</span> + data.<span class="hljs-property">user</span>;</span><br><span class="language-javascript">            &#125;</span><br><span class="language-javascript">        &#125;</span><br><span class="language-javascript">    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br></code></pre></td></tr></table></figure><p>payload:</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title function_">alert</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-property">cookie</span>)<br></code></pre></td></tr></table></figure><h2 id="javascript伪协议">javascript伪协议</h2><p>如果说有一种url可以直接执行js代码，那岂不是更头大了。<br>但是很遗憾，这种东西是真实存在的，那就是JavaScript伪协议。它长这样：<code>javascript:alert(1)</code> 。<br>也就是说，现在不仅需要提防<code>event_handler</code>属性，连最普通的<code>src</code>,<code>href</code>都有可能被注入XSS。<br>比如说，在<code>iframe</code>标签下，或者在网页重定向的时候（重定向的url直接填JavaScript伪协议）等等。</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">javascript:alert(1)</span>&gt;</span>Link<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br></code></pre></td></tr></table></figure><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">iframe</span> <span class="hljs-attr">src</span>=<span class="hljs-string">javascript:alert(1)</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span><br></code></pre></td></tr></table></figure><h1>XSS的种类</h1><p>经典分类贴标签环节。</p><p>一般来说，把XSS分为3类：</p><h2 id="持久-存储型XSS">持久/存储型XSS</h2><p>此类 XSS 不需要用户单击特定 URL 就能执行跨站脚本，攻击者事先将恶意代码上传或储存到漏洞服务器中，只要受害者浏览包含此恶意代码的页面就会执行恶意代码。持久型 XSS 一般出现在网站留言、评论、博客日志等交互处，恶意脚本存储到客户端或者服务端的数据库中。<br>也就是像刚才提到的，攻击者发送带有XSS攻击的一条评论，所有看到这条评论的人都会被攻击。这种攻击威胁非常大，因为它直接被储存到了服务器上，甚至可以做到让服务器把这条攻击一传十，十传百。那网站碰到这种情况基本只能停服维护个几天了。</p><h2 id="反射型XSS">反射型XSS</h2><p>反射型 XSS 的利用一般是攻击者通过特定手法，诱使用户去访问一个<strong>包含恶意代码的 URL</strong>（比较常见的情况），当受害者点击这些专门设计的链接的时候，恶意代码会直接在受害者主机上的浏览器执行。<br>这种攻击方式是最常见也是最广泛的XSS。并且服务器可以通过查看url请求的log来发现是否有反射型XSS的产生。</p><h2 id="DOM-based-XSS">DOM-based XSS</h2><p>前两种XSS都会与服务器进行交互，而这种却是<em>浏览器-&gt;本地脚本-&gt;浏览器</em>的链路。所以，当产生DOM-Based XSS的时候服务器一般是不会知道的。（之前本人一直分不清它与反射型XSS，这一条可以说是分辨依据之一）<br>DOM-based XSS 本质是一个前端漏洞。</p><h1>防御XSS</h1><p>如果上述所说的各种XSS攻击都是无法防御的话，那么估计没有人敢上网了。但其实针对XSS的防御还是有很多的。<br>比如说，既然<code>&lt;script&gt;</code>标签非常危险，那我们作为防御者在处理用户输入的时候直接把<code>&lt;&gt;</code>作为敏感字符编码调，等到显示在浏览器的时候再去重新处理，或者直接禁止掉此类。<br>总之，最简单的方法就是用简单的字符串处理，识别出是否有XSS，如通过正则匹配验证url是否为JavaScript伪协议。</p><p>但是简单的字符串逻辑是很容易被绕过的。攻击者研究你的识别逻辑，很容易可以想出一个新的刁钻的payload。那这时，不如直接用专业处理过的sanitizer。</p><h2 id="Sanitization">Sanitization</h2><p>sanitization，顾名思义，消毒。也就是通过统一的处理手段，处理掉可能含有XSS的用户输入。而编码其实就是一种较为基础的sanitization。而编码除了有上述容易绕过的毛病以外，对开发者其实也是一个不小的限制。比如如果直接编码掉<code>&lt;&gt;</code>，那所有的html标签都无法使用了，不止script。<br>那此时不妨放弃自己作判断，转而去使用如<strong>dompurify</strong>这样的专业进行sanitization的库。它可以以更复杂的逻辑进行消毒。</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> sanitization = <span class="hljs-title class_">DOMPurify</span>.<span class="hljs-title function_">sanitize</span>(html);<br></code></pre></td></tr></table></figure><p>这个方法可以选择性地去除危险标签，保留原来一些比较安全的标签。</p><p>但是随着开发越来越深入，消毒的局限性是会越来越大的。如果有人忘了消毒怎么办？这个时候需要一种稳定的开发规范——CSP。</p><h2 id="CSP">CSP</h2><p>CSP（Content Security Policy）可以让开发者自己设定一套安全规范，在开发过程中时刻进行检查，是否有可能带来危险的代码。<br>它的工作原理是这样的，一般放在html的<code>&lt;meta&gt;</code>标签页下，代表这个CSP是对于这个网页的一种元数据。</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">http-equiv</span>=<span class="hljs-string">&quot;Content-Security-Policy&quot;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&quot;script-src &#x27;none&#x27;&quot;</span>&gt;</span><br></code></pre></td></tr></table></figure><p>当然，也可以放在请求的header中。<br>在CSP的这个字段中，我们可以配置相关的规则来进行安全管控，以上方为例：<br><code>content</code>内是具体的管控规则，其中的<code>script-src</code>指的是对js的管理。后面的<code>'none'</code>指 <strong>”不允许任何JavaScript代码执行“</strong> 。很明显这是一条相当激进的规则。<br>当然，在大多数情况下我们还是必须要去执行js代码的，但是我们可以管控我们可以执行的代码的来源是什么。把<code>none</code>换成<code>self</code>，就允许所有同源的js代码执行。这一条规则一般是看上去比较安全的常用的规则。当然，它的后面也可以填协议名，代表限制特定的协议，也可以填域名，代表限制特定的域名等。甚至可以自定义一个哈希值代表一个标记，允许加载带这个标记的js。<br>当然，XSS也不止于在<code>script</code>标签内，所以还有其他的CSP管控规则如<code>style-src</code>,<code>img-src</code>等。</p><p>比较成熟的网站一般会有一套相当复杂且稳定的CSP。</p><h3 id="局限性">局限性</h3><p>CSP这么强居然还有局限性吗？<br>那是必然的。CSP再怎么说，也是人为的产物，是开发者自己定的。如果有了新需求，需要对CSP作临时改动，可能又会对CSP作一些放宽，那攻击者就可以趁着这个放宽的时期进行攻击。<br>明文写出的规定，是有办法对其进行绕过的。比如说刚才提到的经典的<code>content=&quot;script-src 'self'</code>。如果这个域名下提供了一些其他功能，比如说svg图床，而在那个功能下没有对安全做出保障，那是不是可以直接使用svg图床注入js，然后再去引用那里面的内容去执行呢？是可以的。因为它们属于同一个源，对其的执行是完全合法的。</p><h2 id="怎么防御？">怎么防御？</h2><p>假如攻击者真的绕过了csp，那怎么办？<br>要知道，安全加固是没有终点的，永远没有一个安全策略能被说是”完美“的，它始终应该跟着需求不断变化，需要人的长期维护。而这些安全策略就像一层一层的城墙，玛丽亚之墙破了还有罗塞之墙，，罗塞之墙破了还有希纳之墙，没有可以防住任何东西的城墙，就算是结界也可以被打破啊！<br>前端做好前端的安全，前端的安全被打破了至少还能在后端拦截或者减小一下损伤嘛。</p><blockquote><p>一点小小的愚见，大概以后还会在这个方向学习的吧。</p></blockquote><p><img src="https://imageproxy.pixnet.cc/imgproxy?url=https://pic.pimg.tw/smallblackdog3/1378118474-3606929878_l.jpg&amp;ver=20250714" alt=""></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>技术向</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>前端</tag>
+      
+      <tag>安全</tag>
+      
+      <tag>XSS</tag>
+      
+      <tag>CSP</tag>
+      
+      <tag>学习笔记</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>【诗】 玫瑰</title>
     <link href="/2025/07/30/%E3%80%90%E8%AF%97%E3%80%91%E7%8E%AB%E7%91%B0/"/>
     <url>/2025/07/30/%E3%80%90%E8%AF%97%E3%80%91%E7%8E%AB%E7%91%B0/</url>
@@ -97,9 +130,9 @@
     
     <tags>
       
-      <tag>算法</tag>
-      
       <tag>ACM</tag>
+      
+      <tag>算法</tag>
       
       <tag>Codeforces</tag>
       
@@ -151,9 +184,9 @@
     
     <tags>
       
-      <tag>ACM</tag>
-      
       <tag>大学</tag>
+      
+      <tag>ACM</tag>
       
     </tags>
     
@@ -332,9 +365,9 @@
     
     <tags>
       
-      <tag>回忆</tag>
-      
       <tag>OI</tag>
+      
+      <tag>回忆</tag>
       
     </tags>
     
@@ -392,11 +425,11 @@
       
       <tag>算法</tag>
       
-      <tag>OI</tag>
-      
       <tag>后缀数组</tag>
       
       <tag>教程</tag>
+      
+      <tag>OI</tag>
       
     </tags>
     
