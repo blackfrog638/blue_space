@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>浅谈C++中的万能引用与完美转发</title>
+    <link href="/2025/11/15/%E6%B5%85%E8%B0%88C++%E4%B8%AD%E7%9A%84%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8%E4%B8%8E%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91/"/>
+    <url>/2025/11/15/%E6%B5%85%E8%B0%88C++%E4%B8%AD%E7%9A%84%E4%B8%87%E8%83%BD%E5%BC%95%E7%94%A8%E4%B8%8E%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>事实上，这篇文章可能不止讲万能引用与完美转发。<br>（可能前摇有点过长）</p></blockquote><h1>发生了什么？</h1><p>之前在野路子写c++的时候，完全忽视了c++是一门面向对象语言的事实，所以对许多编译报错的事情都感到十分疑惑，只能愚笨地这边改改，那边改改来试错。当别人说，对<code>vector</code>要用<code>.emplace_back()</code>，比<code>.push_back()</code>更快的时候，也是知其然而不知其所以然。所以对他们的写法不同，也只是抱着一种默认的态度。可是到底发生了什么呢？</p><h1>左值引用与右值引用</h1><p>众所周知，引用，在c++中，最初是以“别名”的形式存在的。也就是说，<code>int &amp;a = b;</code>也就是我把变量b起了个别名叫a。这听起来好像没什么用，但是在函数上就非常有用了。</p><p>以C语言的思维，函数的参数列表传入实参，内部的修改都是针对形参的。也就是说，如果<strong>按值传递</strong>，不可能在函数内部对传入的实参进行修改。这其实很好理解：传入参数，实际上也就是把实参<strong>拷贝</strong>了一份给形参，拷贝完之后，这两个变量就再无瓜葛了。所以在C语言中，要想修改外部变量的值只能使用指针，也就是<code>*</code>这个符号。</p><h2 id="RAII">RAII</h2><p>当然咯，由于某些原因，现代c++在大多数时候都是不推荐使用原始的指针的。为什么呢？这不应该是发展光辉历程中浓墨重彩的一笔么？</p><p>现代C++最重要的编程准则之一，即 <strong>RAII (Resource Acquisition Is Initialization)</strong>。原始指针在管理动态分配的内存时，存在一系列的经典问题：</p><ol><li><strong>所有权不明确</strong>：当你从一个函数接收到一个原始指针时，你无法仅从指针类型本身知道谁负责 delete 它。是你自己？还是调用者？还是别的什么东西？这种模糊性是内存泄漏和重复释放的根源。</li><li><strong>内存泄漏</strong>：如果你忘记 delete 一个通过 new 分配的指针，就会发生内存泄漏。在有多个返回路径或可能抛出异常的复杂函数中，确保在任何情况下都能正确 delete 是非常困难且容易出错的。</li><li><strong>悬垂指针 (Dangling Pointers)</strong>：当一个指针指向的内存已经被 delete，但该指针本身没有被置为 nullptr 时，它就成了悬垂指针。后续对这个指针的任何解引用都会导致未定义行为（通常是程序崩溃）。</li><li><strong>重复释放 (Double Free)</strong>：多次 delete 同一块内存会导致未定义行为。<br><img src="/img/%E6%97%A0%E8%AF%AD%EF%BC%8C%E5%92%8C%E4%BD%A0%E8%AF%B4%E4%B8%8D%E4%B8%8B%E5%8E%BB%EF%BC%8C%E5%85%B8%E5%9E%8B%E7%9A%84C++%E6%80%9D%E7%BB%B4.jpeg" alt=""><br>所以说引用这个东西被加入了之后，就可以替代原来的指针在形参列表中的生态位了，我们给实参起了一个“别名”，那我们给这个别名修改，不就相当于修改它本身嘛。</li></ol><h2 id="左值和右值">左值和右值</h2><ul><li><strong>左值 (Lvalue - “Locator Value”)</strong>: 指的是那些在内存中有<strong>固定位置、有名字、可以被取地址</strong>的表达式。简单来说，它们是“持久的”对象。<ul><li>例如：变量 x、数组元素 arr[0]、返回左值引用的函数调用等。</li><li>你可以把它放在赋值符号 (=) 的<strong>左边</strong>。</li></ul></li><li><strong>右值 (Rvalue - “Read Value”)</strong>: 指的是那些<strong>临时的、没有名字、即将被销毁</strong>的表达式。它们通常是计算过程中产生的中间结果。<ul><li>例如：字面量 10、true、表达式 x + y 的结果、返回一个值的函数调用 get_value() 等。</li><li>你通常不能把它放在赋值符号 (=) 的左边（不能对一个临时值赋值）。</li></ul></li></ul><p><s>（说实话，我也是第一次知道lvalue/rvalue的l和r不是left和right。）</s></p><p>那么出现了引用之后，我们会发现，刚刚提到的所有的引用全都是左值引用。右值有没有引用呢？乍一想，对一个不能更改的值搞一个引用的功能好像没什么意义，但是右值引用有别的妙用——<strong>移动语义</strong>。</p><p>也就是说，一个右值可以像”移动“一样，传来传去，这个人有了，另一个人就没了。这好像更像真实世界的物质交换原则，而非信息交换。但是这肯定也是有好处的。</p><p>我们知道，赋值实际上是通过”拷贝“来实现的。我某一个空间，有一个1MB的数据；想要给另一个空间，就得从这个空间中，一点一点地扫描，复制，直到拷贝完毕。哪怕是左值引用，在编译器底层基本上也是靠拷贝“指针”的类似物来实现的。这样肯定有性能开销。那如果一个空间用完就不用了，想给另外一个了，就可以移动赋值了。</p><p>哪怕一个变量不是右值引用，也可以通过<code>std::move()</code>函数来把它当作一个右值引用来移动，当然，原本变量的也就跟右值一样被销毁了。</p><p>其实最开始提到的<code>.push_back()</code>方法也是支持移动语义的。但是为什么它还是慢呢？</p><h1>万能引用(Universal references)</h1><p>随着对C++性能的进一步满足，似乎某些需求也进一步增长了。</p><h2 id="cvref"><code>cvref</code></h2><p>刚刚提到，在函数的形参列表中可以设置左值引用/右值引用。虽然说<code>int</code> 和<code>int&amp;</code>本质上不是同一种类型，但是他们肯定是有关联的。<code>&amp;</code>就好像<code>int</code>这个类的一个修饰符一样。事实上这类修饰符有以下几种：</p><ul><li><code>const</code> : 常数、不能修改。</li><li><code>volatile</code> : 告诉编译器这个变量只能储存在内存中，不能被优化到寄存器等其他地方。</li><li><code>&amp;</code> : 左值引用。</li><li><code>&amp;&amp;</code> : 右值引用。<br>这几种被合称为<code>cvref</code>，是一个类型的“修饰层”。<code>std::remove_cvref</code> 这个标准库工具的设计目的就是：<strong>剥去一个类型所有的外层修饰，还原其最核心的、未被修饰的类型</strong>。</li></ul><p>为什么没有指针<code>*</code>？因为指针不是在修饰一个类型，而是<strong>构造了一个全新的、不同的类型</strong>。</p><h2 id="编写形参列表时遇到的困难">编写形参列表时遇到的困难</h2><p>我们在编写一个函数的时候，肯定希望一个变量以最快的方式传到函数体内。为此，左值有了左值引用，右值有了右值引用。这让我们可以以最高效率的方式获取到变量的值。</p><p>可是，我们往往是不知道传入的实参到底是个什么类型。如果形参列表里面是这样的：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp; a, <span class="hljs-type">int</span>&amp; b)</span></span><br></code></pre></td></tr></table></figure><p>这样接收左值的效率肯定很高，但是就根本不能接收右值了。</p><p>那全改成右值引用呢？那就根本不能接收左值了。</p><p>可以发现我们遇到了一个小困难。也就是如果我们在一个参数里面又想填左值又想填右值，那使用左值引用/右值引用似乎就不行了，我们要么排列组合把所有情况全考虑进去（那会指数级增长，根本不可能），要么我们就直接放弃使用引用，改为拷贝赋值，这似乎又不是很能接受了。</p><h2 id="自动类型推导">自动类型推导</h2><p>这时候主角就登场了。所谓万能引用，也就是能自动推导引用的类型。</p><p>万能引用可以这样写：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(T&amp;&amp; param)</span></span>;<br></code></pre></td></tr></table></figure><p>虽然看上去他是一个右值引用，但实际上它并不是。当它在类型推导上下文中出现时， <code>T&amp;&amp;</code> 会获得特殊含义。 <code>T</code> 取决于传递给 <code>func</code> 的参数是左值还是右值。如果是类型为 <code>U</code> 的左值， <code>T</code> 会被推导为 <code>U&amp;</code> 。如果是右值， <code>T</code> 会被推导为 <code>U</code> 。我们把它称为”万能“引用，因为它不仅能推导引用，而且可以推导出所有的<code>cvref</code>属性。</p><p>那这样，模板T的右值引用该怎么表示？这个时候就必须解释一个看似没有什么用的规则——引用折叠规则了。</p><h2 id="引用折叠">引用折叠</h2><p>指针可以嵌套，引用也可以嵌套。左值引用和右值引用之间也可以嵌套，那这样不是套的没边了吗？可是引用比指针优越的一点是，它是可以“<strong>折叠</strong>”的。所以，就算看起来左值引用和右值引用在套来套去，可是最后表现出来只有要么左值引用，要么右值引用。</p><p>引用折叠的规则如下：</p><blockquote><p><code>&amp;</code> 总是获胜。所以 <code>&amp; &amp;</code> 是 <code>&amp;</code> ， <code>&amp;&amp; &amp;</code> 和 <code>&amp; &amp;&amp;</code> 也是。唯一能从折叠中产生 <code>&amp;&amp;</code> 的情况是 <code>&amp;&amp; &amp;&amp;</code> 。你可以把它看作是一个逻辑或，其中 <code>&amp;</code> 是 1 而 <code>&amp;&amp;</code> 是 0。</p></blockquote><p>对于刚刚所提到的代码</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(T&amp;&amp; param)</span></span>;<br></code></pre></td></tr></table></figure><p>，我们可以分步对这个代码进行拆解。1. 传入值的类型， 2. 类型T被推导成什么，3. <code>param</code> 最终的类型。</p><table><thead><tr><th>传入参数 <code>arg</code> 的类型</th><th><code>arg</code> 的值类别</th><th><code>T</code> 被推导成什么</th><th><code>param</code> 的最终类型 (<code>T&amp;&amp;</code>)</th></tr></thead><tbody><tr><td><strong>左值</strong> (Lvalue)，例如 <code>int x</code></td><td>左值</td><td><code>int&amp;</code></td><td><code>int&amp;</code></td></tr><tr><td><strong>右值</strong> (Rvalue)，例如 <code>10</code></td><td>右值</td><td><code>int</code></td><td><code>int&amp;&amp;</code></td></tr><tr><td><strong>左值引用</strong> (Lvalue Ref)，例如 <code>int&amp; ref</code></td><td>左值</td><td><code>int&amp;</code></td><td><code>int&amp;</code></td></tr><tr><td><strong>右值引用</strong> (Rvalue Ref)，例如 <code>int&amp;&amp; rref</code></td><td>左值</td><td><code>int&amp;</code></td><td><code>int&amp;</code></td></tr><tr><td>注意，一个<strong>具名的右值引用是左值</strong>。</td><td></td><td></td><td></td></tr></tbody></table><p>我们可以从这个表看出，正是有了引用折叠的这个特性，万能引用才能够通过这个特性来达到“万能”的效果。所以，所谓”万能引用“，其实是”在类型推导上下文中的右值引用“。</p><h1>完美转发</h1><p>正如我们可以把一个对象使用<code>std::move()</code>来将他当作一个右值来转发，对于万能引用我们有什么办法能来转发呢？</p><p>那对于“万能引用”逼格这么高的名字，肯定也要一个高逼格的名字来转发它——完美转发。我们使用<code>std::forward()</code>来使用完美转发。它的具体实现如下：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> T&gt;</span><br><span class="hljs-function">T&amp;&amp; <span class="hljs-title">forward</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::type&amp; t)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">static_cast</span>&lt;T&amp;&amp;&gt;(t);<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;<br><span class="hljs-function">T&amp;&amp; <span class="hljs-title">forward</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::type&amp;&amp; t)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">static_cast</span>&lt;T&amp;&amp;&gt;(t);<br>&#125;<br></code></pre></td></tr></table></figure><p>应用刚才的引用折叠规则，我们也不难推断出，这样就能把各种类型的引用原样转发出去了。</p><h2 id="所以发生了什么？">所以发生了什么？</h2><p>当我们发现了完美转发这个东西的存在之后，我们就可以了解 <code>.emplace_back()</code> 的快速之处了。</p><p>经典的 <code>.push_back()</code> 虽然也支持移动语义，但是必然的是，它也只能支持我们先在 <code>push_back</code>括号里面的表达式中，先把我们要移动的东西给构造出来，然后在把它push到vector里面。而且它对于左值是万万不可使用引用，只能使用拷贝的。</p><p>但是 <code>.emplace_back()</code> 中，我们不急于去构造这个对象，而是先把参数列表里面的东西全部 <strong>“完美转发”</strong>  到vector中，在vector内部去构造这个对象。</p><p>具体对比下来就是</p><p><code>.push_back()</code>的性能开销：普通构造+移动构造+析构<br><code>.emplace_back()</code>的性能开销：普通构造。</p><p>那关于万能引用和完美转发其实还有很多新内容，可是这里太小了，我写不下，还是等到下一篇再写罢。</p><blockquote><p>此篇博客献给我的一位可爱的学弟，祝他在未来事事顺意。</p></blockquote>]]></content>
+    
+    
+    <categories>
+      
+      <category>技术向</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>C++</tag>
+      
+      <tag>引用</tag>
+      
+      <tag>教程</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>【转载】Boost.Asio C++网络编程</title>
     <link href="/2025/09/25/%E3%80%90%E8%BD%AC%E8%BD%BD%E3%80%91Boost.Asio%20C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/"/>
     <url>/2025/09/25/%E3%80%90%E8%BD%AC%E8%BD%BD%E3%80%91Boost.Asio%20C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</url>
@@ -423,9 +452,9 @@
     
     <tags>
       
-      <tag>OI</tag>
-      
       <tag>回忆</tag>
+      
+      <tag>OI</tag>
       
     </tags>
     
@@ -485,9 +514,9 @@
       
       <tag>OI</tag>
       
-      <tag>后缀数组</tag>
-      
       <tag>教程</tag>
+      
+      <tag>后缀数组</tag>
       
     </tags>
     
