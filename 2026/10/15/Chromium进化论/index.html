@@ -1,0 +1,947 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/soine_ico.png">
+  <link rel="icon" href="/img/soine_ico.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Blauter">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="从多进程、Content 与 Components、Blink、Network Service 到 V8 分层编译，回顾 Chromium 的五次技术选择与架构演进。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chromium进化论">
+<meta property="og:url" content="http://blog.bluspace.ren/2026/10/15/Chromium%E8%BF%9B%E5%8C%96%E8%AE%BA/index.html">
+<meta property="og:site_name" content="Blue Space">
+<meta property="og:description" content="从多进程、Content 与 Components、Blink、Network Service 到 V8 分层编译，回顾 Chromium 的五次技术选择与架构演进。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/HL3XbWXEjocwbRxpPX8cXpVCnUR.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/Ni5wbBJ7IoJqf0xux3icscuwnOe.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/OYSHbAfuAouWZfxTcdRcZyQsnZc.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/QyrTbgz6ContiVx4B9dcqIsrndd.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/Bh39b7wmQoINRbxzc3McvMWunxb.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/LBMObTDmroLcoOxcAtbcQT06nNd.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/GKKQb4wmyogtY0xovECcLb66n9b.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/GnWObRBfZokNf7xF3ODcHUbrnDg.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/UpAHb8BTuoM4X3xePz3cuKTCn1d.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/Mx0HbhUD8ok5RNxMCKMcNpyEnLg.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/OJTPbjSX3ojDDUxktX0ciG8dnNf.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/CpShbgvvPoHfUYxjAsEcWSzLnIv.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/DXitbxXXToDyTlxNG2McJlCNn0d.png">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/Ioarw3njhhQwclbwkDecJE4znCg.jpg">
+<meta property="og:image" content="http://blog.bluspace.ren/images/chromium-evolution/Hw2PwBqLrhL68QbC7J5cpKHmn6c.jpg">
+<meta property="article:published_time" content="2026-10-15T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-15T03:51:29.043Z">
+<meta property="article:author" content="Blauter">
+<meta property="article:tag" content="chromium">
+<meta property="article:tag" content="浏览器">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="V8">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://blog.bluspace.ren/images/chromium-evolution/HL3XbWXEjocwbRxpPX8cXpVCnUR.png">
+  
+  
+  
+  <title>Chromium进化论 - Blue Space</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.bluspace.ren","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Blue Space</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Chromium进化论"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-10-15 12:00" pubdate>
+          2026年10月15日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          45 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Chromium进化论</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p><strong>TL;DR</strong>:Chromium 的架构是在需求、兼容性、性能和维护成本的变化中逐步形成的。本次分享选取五次技术选择，结合当时的文档和代码，观察团队为什么改变原有方案，以及改变之后又承担了什么成本。</p>
+</blockquote>
+<blockquote>
+<p>Q：chromium跟进化论有什么共同点？</p>
+<p>A：都可以用恐龙作为它们的代表性图标。</p>
+</blockquote>
+<h2 id="写在前面：为什么要看chromium的进化">写在前面：为什么要看chromium的进化</h2>
+<p>Chromium不仅是一个 Web 应用运行平台，同时也是 Chrome、Edge、Electron、CEF 等众多浏览器和桌面应用的核心基础。</p>
+<p>到底有多核心，看看这个神秘应用：<a target="_blank" rel="noopener" href="https://github.com/ShirasawaSama/CefDetectorX">https://github.com/ShirasawaSama/CefDetectorX</a></p>
+<p>想写一个关于 chromium 整体架构的文章，但是写着写着就想： AI 时代了，想了解一个程序的架构，直接让 AI 读代码，有问题就问就好了，有必要还让人整理出来讲一讲吗？我问任何问题都很方便获取答案的今天，还可以分享什么东西？</p>
+<p>突然想到， AI 现在经常被诟病 taste ，或者说“审美”方面的缺陷。而这些能力在技术选型中很重要，需要人来积累经验做出更优的决策。所以这篇文档就以“进化”为切入点，讲讲 chromium 为什么长成现在这个样子，它经历了哪些关键的技术判断。</p>
+<h2 id="为什么要有Chromium？（2006-2008）">为什么要有Chromium？（2006~2008）</h2>
+<h3 id="旧浏览器，新趋势">旧浏览器，新趋势</h3>
+<p><img src="/images/chromium-evolution/HL3XbWXEjocwbRxpPX8cXpVCnUR.png" srcset="/img/loading.gif" lazyload alt="以前的hotmail"></p>
+<p><img src="/images/chromium-evolution/Ni5wbBJ7IoJqf0xux3icscuwnOe.png" srcset="/img/loading.gif" lazyload alt="现在的outlook"></p>
+<p>当时的大多数网页都是静态网页，也就是说，浏览器更多像是一个“阅读器”，阅读对应网址下的网页内容。</p>
+<p>但随着前端开发的不断深入，网络已经从单纯的文本页面发展成了丰富且交互性强的应用程序，浏览器的性质正在发生改变。</p>
+<blockquote>
+<p>2003—2006 年间，Web 正在发生剧烈变化。Alexa Top 100 首页中，平均 JavaScript 大小从 2003 年的约 15.3 KB 上升到 2006 年的 64.9 KB；超过 10 KB JS 的页面比例从 35% 增长到 71%。XHR 也突然普及：2003、2004 年 Top 100 首页几乎没有使用，2005 年只有 1 个，而 2006 年已经达到 28 个。作者拿地图应用做对比：传统地图站点平均约 32.3 KB 代码，而 Google Maps 等交互式地图站点平均约 296 KB，差不多一个数量级。</p>
+</blockquote>
+<h3 id="暴露的问题与解决方案">暴露的问题与解决方案</h3>
+<p>这些改变暴露了当时主流浏览器的一些明显的问题：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css"></span><br><span class="language-css">  <span class="hljs-selector-class">.done</span> &#123; <span class="hljs-attribute">color</span>: blue; &#125;</span><br><span class="language-css"></span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;load&quot;</span>&gt;</span>加载社团介绍<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;result&quot;</span>&gt;</span>尚未加载<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"></span><br><span class="language-javascript">  <span class="hljs-keyword">const</span> button = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&quot;#load&quot;</span>);</span><br><span class="language-javascript">  <span class="hljs-keyword">const</span> result = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&quot;#result&quot;</span>);</span><br><span class="language-javascript"></span><br><span class="language-javascript">  button.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;click&quot;</span>, <span class="hljs-keyword">async</span> () =&gt; &#123;</span><br><span class="language-javascript">    <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;/intro.txt&quot;</span>);</span><br><span class="language-javascript">    result.<span class="hljs-property">textContent</span> = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">text</span>();</span><br><span class="language-javascript">    result.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;done&quot;</span>);</span><br><span class="language-javascript">  &#125;);</span><br><span class="language-javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th><strong>问题</strong></th>
+<th><strong>对用户的影响</strong></th>
+<th><strong>架构需要提供什么</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一个页面或插件出错，影响整个浏览器</td>
+<td>邮箱崩溃，其他正在工作的页面也丢失</td>
+<td>故障隔离</td>
+</tr>
+<tr>
+<td>一个应用持续占用执行资源</td>
+<td>页面、标签切换或浏览器界面失去响应</td>
+<td>独立调度与终止能力</td>
+</tr>
+<tr>
+<td>不可信网页触发原生代码漏洞</td>
+<td>攻击可能获得用户的系统权限</td>
+<td>权限隔离</td>
+</tr>
+<tr>
+<td>JavaScript 应用越来越复杂</td>
+<td>应用开发者能实现的功能受到性能限制</td>
+<td>更强的执行引擎</td>
+</tr>
+</tbody>
+</table>
+<p>总而言之，既然网页越来越像“应用”，那它跟桌面应用比到底有哪些问题？桌面应用有操作系统的进程隔离的支持，不同的应用之间不会互相影响，同时执行效率也大大高于web应用。</p>
+<p>怎么解决web应用的这个大劣势呢？那就是直接复用操作系统层面提供的进程隔离能力，让不同的web应用也分立不同的进程，这也是chromium最核心的架构——多进程架构。</p>
+<blockquote>
+<p><strong>进程</strong>是一个运行中的程序实例，拥有自己的虚拟地址空间和操作系统资源，实际执行代码的是其中的线程。操作系统配合硬件内存保护，让普通代码不能用一个指针随意读写另一个进程的私有内存。因此，一个进程发生越界访问或崩溃时，通常可以单独终止它，其他进程仍能继续运行。</p>
+</blockquote>
+<h3 id="多进程架构">多进程架构</h3>
+<p>既然多进程架构可以解决这么多问题，那到底应该怎么设计多进程的架构呢？chromium把进程分成了这3种：</p>
+<ul>
+<li>Browser: 浏览器进程（主进程），可以调度子进程，负责UI，网络等能力，可以和操作系统进行直接交互。</li>
+<li>Renderer：渲染器进程（子进程），负责渲染页面。一个renderer进程对应浏览器中的一个或几个标签页，通过安全沙箱严格防止renderer进程直接调用底层能力。如果需要调用底层能力需要通过ipc（进程间通信）让browser进程帮忙。</li>
+<li>Plugin：插件进程，负责flash等其他功能。</li>
+</ul>
+<p><img src="/images/chromium-evolution/OYSHbAfuAouWZfxTcdRcZyQsnZc.png" srcset="/img/loading.gif" lazyload alt="图片展示了Chromium浏览器多进程架构。用户输入、窗口与标签页等信息进入Browser process（浏览器进程），该进程负责UI、进程管理、网络、持久化资源等。Browser process与Renderer process（渲染进程）、另一个Renderer process、插件进程（如Flash）及操作系统等通过IPC（进程间通信）进行交互。Renderer process运行WebKit + V8，受沙箱限制。此图直观呈现了Chromium多进程架构中各进程间的关系及功能划分，与上下文介绍的多进程架构内容相契合。"></p>
+<p>其中，在renderer子进程的拆分中，也需要为了平衡性能和安全做一定的妥协：多进程可以保证一定的基本的安全性，但是肯定是伴随着性能的开销。考虑到复用缓存，当时的 chromium 以 Site 为基本的进程划分的单位。总的来说，Chromium 不是按 UI 元素划进程，而是按“需要共享执行语义”和“需要相互隔离”的边界划进程。</p>
+<p>进程和标签页是否一直是1对n的形式呢？也不一定。在后续的演进中，考虑到安全问题，将标签页上的iframe也作为独立进程。</p>
+<h2 id="产品还是内核？（2010-2012）">产品还是内核？（2010~2012）</h2>
+<h3 id="焦油坑初见端倪">焦油坑初见端倪</h3>
+<p>多进程解决了网页之间的故障与权限隔离，但没有自动解决代码之间的耦合。随着自动填充、密码管理、扩展等功能增长，通用的网页运行机制和 Chrome 的产品行为开始纠缠在一起。</p>
+<p>当时增加 Autofill 这样的功能，经常需要同时修改 renderer 侧的 RenderView、browser 侧的 RenderViewHost、页面对象及公共 IPC 消息文件。每个功能都往同一批核心类里加代码，核心类就越来越难理解和修改。官方文档也承认：功能接入了不合适的位置，接口和功能混在一起，开发者难以判断新代码应该放在哪里。</p>
+<p>这个时候的 chrome 可能像是进入了焦油坑的公牛一样，需要进行架构上的调整。同时也需要对这个项目到底是一个开源浏览器产品，还是一个通用web应用执行引擎做出回答。</p>
+<h3 id="Content-Component">Content &amp; Component</h3>
+<p><img src="/images/chromium-evolution/QyrTbgz6ContiVx4B9dcqIsrndd.png" srcset="/img/loading.gif" lazyload alt="图片展示了Chromium的“Delicious Layer Cake, v1”架构图。最上方是“//chrome”，下方依次为“//net”“//base”“//webkit”“//third_party/WebKit”“//v8”，其中“//webkit”和“//third_party/WebKit”之间有箭头指向“//v8”。该图与文档中“产品还是内核？（2010~2012）”章节内容相关，说明了Chromium架构演变，强调了多进程核心代码迁入src/content后，逐渐承接的机制及与宿主交互的Content API，体现了架构的层次结构。"></p>
+<p><img src="/images/chromium-evolution/Bh39b7wmQoINRbxzc3McvMWunxb.png" srcset="/img/loading.gif" lazyload alt="图片展示了Chromium的架构图，标题为“Luscious Layer Cake, v2”。图中以层级结构呈现，最上层是//chrome，通过Content API与//content交互，后者又与//net、//webkit等模块连接。//webkit与//third_party/WebKit相关，二者均与//v8有联系。该图与文档中“第一次拆分：让网页运行核心能够脱离Chrome产品使用，明确把多进程核心代码迁入src/content”的内容相关，直观呈现了拆分后架构的变化。"></p>
+<p><img src="/images/chromium-evolution/LBMObTDmroLcoOxcAtbcQT06nNd.png" srcset="/img/loading.gif" lazyload alt="图片展示了Chromium的架构图，标题为“Decadent Layer Cake, v3”。图中从上至下依次为chrome或android_webview等，向下是components、content、net、webkit等模块，content模块通过Content API与宿主交互，webkit模块通过WebKit API与v8模块连接。该图与文档中介绍Chromium架构的内容相关，直观呈现了多进程核心代码迁入src/content后，各模块之间的关系及交互方式。"></p>
+<p>第一次拆分：让网页运行核心能够脱离 Chrome 产品使用，明确把多进程核心代码迁入 src/content。它逐渐承接导航、页面与 frame 生命周期、进程管理等机制，并通过 Content API 与宿主交互。Chrome 则保留产品界面、功能组装和策略。</p>
+<p>一个很具体的边界是 BrowserContext：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// content/public/browser/web_contents.h</span><br><span class="hljs-function"><span class="hljs-keyword">virtual</span> content::BrowserContext* <span class="hljs-title">GetBrowserContext</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>= <span class="hljs-number">0</span>;<br><br><span class="hljs-comment">// chrome/browser/profiles/profile.h</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Profile</span> : <span class="hljs-keyword">public</span> content::BrowserContext &#123;<br>  <span class="hljs-comment">// ...</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>WebContents 只需要知道网页所处的浏览上下文；Chrome 的 Profile 再在这个基础上组织书签、密码、同步等产品服务。这样，核心代码可以面向 BrowserContext 工作，另一个宿主提供自己的上下文实现，而不必为了运行网页同时接受 Chrome 的整个 Profile。</p>
+<p><img src="/images/chromium-evolution/GKKQb4wmyogtY0xovECcLb66n9b.png" srcset="/img/loading.gif" lazyload alt="图片展示了Chrome浏览器中自动填充功能（Autofill）在2010年之前的架构。图//chrome下有Translate、Profile、Password Mgr、Infobars、Sync、UI Pages等组件，它们都指向Autofill，而WebData for Autofill也指向Autofill。该图与文档中“第二次拆分：让浏览器功能也能被其他产品选择性复用。有了Content，其他产品能运行网页，却不会自动获得Chrome的自动填充等功能”的内容相关，说明了之前自动填充功能是与浏览器功能紧密耦合的。"></p>
+<p><img src="/images/chromium-evolution/GnWObRBfZokNf7xF3ODcHUbrnDg.png" srcset="/img/loading.gif" lazyload alt="图片展示了Chrome浏览器自动填充功能的架构。上方“//chrome”部分有“Chrome Autofill Delegate”；下方“//components”部分有“Delegate”和“Autofill”；“//content”部分有“WebData for Autofill”。箭头从“Delegate”指向“Autofill”，再指向“WebData for Autofill”。该图与文档中“第二次拆分：让浏览器功能也能被其他产品选择性复用”内容相关，说明有了Content后，其他产品能运行网页但不会自动获得Chrome的自动填充等功能。"></p>
+<p>第二次拆分：让浏览器功能也能被其他产品选择性复用。有了 Content，其他产品能运行网页，却不会自动获得 Chrome 的自动填充等功能。Android WebView 等产品需要复用其中一部分，于是团队继续将共享功能从 chrome 提取到 components，产品自身负责创建、配置和接入这些组件。</p>
+<p>以 Autofill 为例：过去实现有大量的直接依赖。组件化后，共享逻辑通过自己定义的接口请求能力，Chrome 的集成代码负责实现接口。需要读取设置，就传入所需的设置服务，而不是把整个 Profile 交给组件。依赖没有凭空消失，而是被集中到较小的产品集成代码中。</p>
+<h3 id="影响和结论">影响和结论</h3>
+<p>Content 为嵌入 Chromium 提供了重要边界。CEF 在 2008 年就已存在，Content 在 2011 年末逐渐可用后，CEF 才转向这条路线，并在 2013 年初发布支持多进程的 CEF3。Electron 则在 Chromium 基础上继续完成 Node.js、原生窗口、应用生命周期及 JavaScript API 的集成。</p>
+<p>因此，这段演进包含两项不同的收益：Content 让网页运行核心可以复用；Components 让浏览器功能可以按需复用。框架再把这些能力组织成应用开发者能使用的接口。边界也有成本：宿主仍需维护集成与版本适配，CEF 后来为获得更多完整浏览器功能，又发展了 Chrome runtime。</p>
+<p>在现在的代码仓库中，Chrome文件夹中的内容是chromium浏览器的业务代码，可以通过这里的代码构建出chromium浏览器。如果要开发chromium内核的其他项目，开一个新的文件夹就可以了。</p>
+<h2 id="Web-平台：复用还是自研？（2008-2013）">Web 平台：复用还是自研？（2008~2013）</h2>
+<h3 id="什么是-web-平台">什么是 web 平台</h3>
+<p>网页内容的解析、样式计算和布局主要发生在 renderer 进程中，最终像素生成与显示还需要图形、合成等模块协作。那么，浏览器如何把请求得到的 HTML、CSS、JavaScript 和其他资源，变成我们能看到、能交互的 Web 应用？这涉及浏览器对 Web 平台的一整套实现。</p>
+<p>以一个点击后修改文字的按钮为例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css"><span class="hljs-selector-id">#hello</span> &#123; <span class="hljs-attribute">color</span>: blue; <span class="hljs-attribute">font-size</span>: <span class="hljs-number">24px</span>; &#125;</span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;hello&quot;</span>&gt;</span>你好<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"></span><br><span class="language-javascript">  <span class="hljs-keyword">const</span> button = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&#x27;hello&#x27;</span>);</span><br><span class="language-javascript">  button.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;click&#x27;</span>, <span class="hljs-function">() =&gt;</span> &#123;</span><br><span class="language-javascript">    button.<span class="hljs-property">textContent</span> = <span class="hljs-string">&#x27;你好&#x27;</span>;</span><br><span class="language-javascript">  &#125;);</span><br><span class="language-javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>web平台都需要完成下面这些工作：</p>
+<ol>
+<li>解析 HTML，建立 DOM。HTML 文本变成内存里的文档对象树：按钮是一个元素，它包含一个内容为“你好”的文本节点。DOM 同时提供访问和修改这些对象的接口。</li>
+<li>计算样式。解析 CSS、匹配选择器，并处理继承、优先级和默认样式，确定按钮文字的颜色、字号等最终属性。</li>
+<li>执行脚本，持续更新页面。点击事件触发回调，由 JavaScript 引擎执行代码；对 textContent 的赋值通过绑定层进入 DOM 实现，修改按钮的文本节点。浏览器随后按需更新布局与画面，并尽量合并修改、复用未失效的结果。</li>
+</ol>
+<h3 id="为什么一开始用-webkit">为什么一开始用 webkit</h3>
+<ul>
+<li>轻量：多进程意味着会同时运行多份引擎实例，单个实例的开销很重要。</li>
+<li>容易改造：为了沙箱隔离，需要把引擎对本地文件系统、原生窗口系统等能力的直接访问剥离或接管。</li>
+<li>开源且已有实践：Chromium 需要开源；Android 团队已经使用 WebKit，并推荐它的速度、灵活性和相对容易理解的代码。Chrome 团队还搭建了多进程测试程序验证可行性。</li>
+</ul>
+<p>这一阶段的选择可以概括为：把成熟的网页兼容性基础接进新的浏览器架构，让团队有能力集中解决进程隔离、响应性和脚本性能问题。</p>
+<h3 id="blink">blink</h3>
+<p>2013 年，Chromium 团队宣布从 WebKit 分叉出 Blink。这里的变化是继承已有网页引擎代码、建立独立演进的分支。</p>
+<p>早期复用 WebKit 的收益很大，但随着项目发展，共享代码需要兼顾不同产品的架构。一个具体分歧是多进程能力放在哪一层：WebKit2 把进程管理封装在自己的嵌入 API 之内，应用使用网页视图时就能获得多进程能力；Chromium 则在所使用的 WebKit API 之外，通过自己的架构管理进程、通信与沙箱。双方都支持多进程，但边界不同。</p>
+<p><img src="/images/chromium-evolution/UpAHb8BTuoM4X3xePz3cuKTCn1d.png" srcset="/img/loading.gif" lazyload alt="图片展示了WebKit2的架构。最上层是UI Process，包含Application；其下是WebKit (UI Process)；再往下是WebKit (Web Process)；接着是WebCore；最底层是JS Engine。最外层用虚线框围起，标注为Web Process。图片右侧有黄色箭头指向UI Process，标注为API Boundary。该图与上下文紧密相关，直观呈现了WebKit2渲染web页面时各组件的层级关系及API边界位置。"></p>
+<p><img src="/images/chromium-evolution/Mx0HbhUD8ok5RNxMCKMcNpyEnLg.png" srcset="/img/loading.gif" lazyload alt="这张图片展示了Chromium WebKit的架构分层结构，从上至下分为Host Process与Render Process两个主要部分，中间的黄色线条标注为API Boundary作为划分界限。Host Process层包含Application (Host Process)模块，Render Process层则依次包含Application (Render Process)、WebKit、WebCore、JS Engine模块，该架构与上下文所提及的Chromium引擎相关架构调整的内容形成对应，清晰呈现了WebKit相关组件的层级划分。"></p>
+<p>官方给出的分叉理由是：同时支持这些不同架构，逐渐增加了 WebKit 和 Chromium 双方的复杂度，拖慢了演进。独立维护 Blink 后，团队可以清理自身不再需要的配置，并围绕 Chromium 的需求调整接口和内部结构，包括简化与 V8 的绑定、提高并行度、支持跨进程 iframe。</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs diff"><span class="hljs-deletion">-#if COMPILER(GCC) &amp;&amp; !PLATFORM(QT)</span><br><span class="hljs-addition">+#if COMPILER(GCC)</span><br> #define ENABLE_TCMALLOC_HARDENING 1<br></code></pre></td></tr></table></figure>
+<p><img src="/images/chromium-evolution/OJTPbjSX3ojDDUxktX0ciG8dnNf.png" srcset="/img/loading.gif" lazyload alt="这张图片展示了Blink渲染Web页面的相关流程。上方是一个网址为www.mysite.com的浏览器窗口，下方标注为“Renderer Process”的区域，左侧显示了通过网络请求获取的网页代码内容，包括HTML结构标签、链接样式文件、图片资源及JavaScript脚本等，这些内容会被处理生成DOM树，右侧清晰呈现了该DOM树的结构，包含document、body、P节点及文本节点等，DOM树的构建由主线程完成，这一流程对应了Blink渲染Web页面的具体步骤。"></p>
+<p><img src="/images/chromium-evolution/CpShbgvvPoHfUYxjAsEcWSzLnIv.png" srcset="/img/loading.gif" lazyload alt="图片展示了Blink在渲染网页过程中的架构。网页经HTML/CSS/JavaScript处理后，进入Renderer进程，其中Blink负责文档、DOM、样式、布局、Web API、事件与生命周期。Blink与V8（执行JavaScript/WebAssembly）通过绑定、回调、对象引用交互，与Renderer合成器cc进行绘制产物与合成属性操作。此外，还有图形与显示系统Skia、GPU服务、Viz等，以及网络、存储、媒体、设备等服务。该图与上下文介绍的Blink渲染网页步骤相呼应，直观呈现其架构及各部分关系。"></p>
+<p>具体来说，blink 通过这样的步骤来渲染出一个 web 页面：</p>
+<ol>
+<li>html会变成真正的 C++ 对象。它经过blink的语法解析器进行解析，解析出真正的 DOM 树。html 有自身的标准，并且在 web 应用运行的过程中，html 有可能会因为 JS 代码对网页的操作而改变，这里需要 blink 来控制刷新等功能。</li>
+<li>V8 通过绑定代码操作这些 DOM 对象。blink 的 web IDL文件声明相关绑定，构建时，IDL 编译器生成绑定代码，负责把 JavaScript 属性访问接到 C++ 实现上，包括接收者检查、类型转换、返回值转换等。JavaScript 中拿到的 DOM 对象，是连接 Blink 对象的包装对象。</li>
+<li>解析 CSS ，完成选择器匹配、层叠、继承等过程，计算出每一个元素的具体样式。</li>
+<li>通过 CSS 计算完样式仍然是不够的，因为元素真正的大小它还是收到布局，窗口等影响。这里chromium会使用 LayoutNG 来计算真正的大小。</li>
+<li>进入 Pre-paint 阶段，会更新绘制所需的属性关系，并判断哪些内容失效。属性包括 <code>Transform</code>, <code>Clip</code>, <code>Effect</code>, 和<code>Scroll</code>。</li>
+<li>最后在底层通过调用cc, skia, dawn, angle, viz等图形学组件来绘制页面。</li>
+</ol>
+<h2 id="网络如何解耦成一种“服务”？（2013-2020）">网络如何解耦成一种“服务”？（2013~2020）</h2>
+<h3 id="网络曾经的困境">网络曾经的困境</h3>
+<p>chromium 的很长一段时间，网络的相关基础能力都实现在 Browser 进程，这是很合理的。但是几个问题驱使谷歌讲网络能力迁移到独立的进程：</p>
+<ol>
+<li>网络栈崩溃，不应该导致整个浏览器退出。</li>
+<li>处理不可信网络数据的代码，不应天然拥有 Browser 的全部权限。</li>
+<li>renderer实际上也会大量调用网络功能，希望网络能力能服务于不同的调用方和运行环境。</li>
+</ol>
+<p>但是具体怎么迁移？迁移之后网络的形态是怎样的？这里就有几个问题需要解决。</p>
+<h3 id="进程间通信问题：Mojo">进程间通信问题：Mojo</h3>
+<p>Chromium 原来的 IPC::Channel 系统能通信，但接口往往围绕 Browser 与子进程的既有关系组织。每个 Content 子进程与 Browser 之间通过一条通道传递消息。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">message_sender_-&gt;<span class="hljs-built_in">Send</span>(<span class="hljs-keyword">new</span> <span class="hljs-built_in">ResourceHostMsg_RequestResource</span>(<br>    request_info.routing_id, request_id, *request));<br></code></pre></td></tr></table></figure>
+<p>这行代码依赖的不只是“发一个请求”，还有既有的消息通道、目标对象的路由和请求跟踪机制。当网络实现要从 Browser 移出去时，就需要重新安排这些连接关系。</p>
+<p>而 Mojo 将通信围绕“接口端点”组织。开发者用 .mojom 文件声明接口、方法、参数和响应，工具生成绑定代码。调用方持有 Remote，接收方用 Receiver 把另一端绑定到实现；双方通过消息管道通信，既可以在同一进程，也可以跨进程。调用者依赖“某个能力的接口”，实现的位置主要由连接和启动代码决定。</p>
+<p>mojo是服务化的一种基础设施，它本质上就是一个进程间的 rpc，把进程间通信这件复杂的，需要标定特定进程的事情改造成了“具体进程无关”的能力，再之后服务化改造的时候就不需要考虑调用具体来自哪个进程了。</p>
+<h3 id="Network-Service">Network Service</h3>
+<p>network service 是 chromium 将网络相关功能解耦出来，得到的一个服务。这个服务可以为任意进程提供网络相关能力，并且性能更高；同时，依赖项也变得更加清晰，方便单独测试。它把 HTTP、HTTPS、TCP、QUIC、DNS、Cookie、网络缓存等底层网络能力封装起来，通过 Mojo 接口提供给 Browser、Renderer 等其他组件使用。</p>
+<h2 id="V8-什么时候值得为代码付出编译成本？（2008-）">V8:什么时候值得为代码付出编译成本？（2008~ - ）</h2>
+<h3 id="自研一个-JS-运行时">自研一个 JS 运行时</h3>
+<p>前面提到，web 应用需要处理越来越复杂的业务逻辑，JavaScript 的执行效率逐渐成为应用体验的瓶颈。2006 年秋天，Google 招募 Lars Bak 为当时尚未公开的 Chrome 开发新引擎；2008 年 9 月，V8 随 Chrome 一同开源。团队希望把动态语言虚拟机领域已有的经验带到浏览器，让 JS 能承担更复杂的应用。</p>
+<table>
+<thead>
+<tr>
+<th><strong>浏览器</strong></th>
+<th><strong>当时的 JavaScript 引擎</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internet Explorer 7</td>
+<td>Microsoft JScript</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td>SpiderMonkey</td>
+</tr>
+<tr>
+<td>Safari</td>
+<td>JavaScriptCore（随后发展出 SquirrelFish 等实现）</td>
+</tr>
+</tbody>
+</table>
+<p>V8 的范围是什么？它应该只服务于 Chrome 浏览器，还是作为通用的 JS 引擎，供其他程序嵌入？Google 从早期就为后者留出了接口，2009 年出现的 Node.js 是一个重要例子。2011 年，V8 又引入了 Isolate，使一个进程可以容纳多个相互分离的 V8 实例。需要区分：V8 负责语言执行，DOM、网络、事件循环等能力由浏览器或 Node.js 这样的宿主提供；Isolate 也不等于操作系统进程沙箱。</p>
+<h3 id="编译器还是解释器？">编译器还是解释器？</h3>
+<blockquote>
+<p>编译器（Compiler）和解释器（Interpreter）的区别是「如何执行代码」，而 AOT（Ahead-of-Time）和 JIT（Just-in-Time）的区别是「什么时候编译代码」。</p>
+</blockquote>
+<p>2008 年的 V8 会把即将执行的 JS 编译成机器码，再交给 CPU 执行。它属于 JIT：编译发生在程序运行期间。后来引入解释器，也没有改变 V8 同时包含编译器和运行时的性质。</p>
+<p>早期 V8 的一个重要设计是隐含类（Hidden Class，源码中称为 Map）。JavaScript 对象的属性可以动态变化，V8 则在运行时记录它们的结构：哪些属性存在、对应什么布局。内联缓存（Inline Cache）记住某个访问点遇到过的结构和访问方式，使常见的属性读取可以变成“检查结构，再按固定偏移读取”。这并不是给 JS 加上静态类型，也不是在编译时就能确定所有对象布局。</p>
+<p><img src="/images/chromium-evolution/DXitbxXXToDyTlxNG2McJlCNn0d.png" srcset="/img/loading.gif" lazyload alt="图片展示了Crankshaft编译器中Map的优化过程。从Map0开始，依次通过name、height、prominence、experience等操作，最终到达Map5。其中，Map1、Map2、Map3、Map4、Map5分别包含name、height、prominence、experience、cost等操作，且部分操作有const标识。该图与上下文紧密相关，直观呈现了Crankshaft在热点优化中，通过收集类型、对象结构等反馈，对热点函数进行优化的过程。"></p>
+<p>2010 年，Crankshaft 在这个基础上增加了热点优化。Full-codegen 先快速生成基线机器码，程序在执行时收集类型、对象结构等反馈，Crankshaft 再据此优化热点函数。比如 a + b 一直遇到整数，就有机会走专门的整数路径；如果后来出现字符串，运行时检查会触发去优化（deopt），恢复较低执行层需要的状态，从对应位置继续执行，而不是从函数开头重跑。</p>
+<p>但旧优化器逐渐难以扩展：try/catch/finally 等结构难以进入优化路径，新特性又经常需要为多种 CPU 编写平台相关代码。2013 年启动的 TurboFan 因此把高层语义优化、底层优化和指令选择分开，逐步接替 Crankshaft。它解决的是优化器的扩展和维护问题。</p>
+<p>随着网站代码越来越多、移动设备变得重要，问题逐渐突出：一段代码最终执行得多快，只是总成本的一部分；解析、编译、保存它，也都要付钱。</p>
+<p>为大量只执行一两次的初始化代码生成机器码，未必划算。V8 于 2015 年开始开发 Ignition，2016 年先在部分低内存 Android 设备上启用，2017 年随 Chrome 59 / V8 5.9 切换到 Ignition + TurboFan：普通代码先以紧凑的字节码解释执行，值得优化的热点代码仍然由 JIT 编译。</p>
+<p><img src="/images/chromium-evolution/Ioarw3njhhQwclbwkDecJE4znCg.jpg" srcset="/img/loading.gif" lazyload alt="Ignition 与 TurboFan 编译流程"></p>
+<h3 id="分层编译：为多快的代码付出多少成本？">分层编译：为多快的代码付出多少成本？</h3>
+<p>两层之间仍有空隙：有些函数已经值得摆脱解释器的解码和分派开销，却不足以收回 TurboFan 的编译成本。2021 年的 Sparkplug 因此直接从字节码快速生成机器码，不构建复杂的优化 IR。</p>
+<p>2023年， Chrome 引入 Maglev，填补 Sparkplug 与 TurboFan 之间的另一段空隙：利用运行反馈做类型特化等优化，但减少分析遍数，尽快产出较好的代码。例如读取 o.x 时，如果反馈指向一种对象结构，就可以在建图时直接生成下面的检查和字段读取。</p>
+<p><img src="/images/chromium-evolution/Hw2PwBqLrhL68QbC7J5cpKHmn6c.jpg" srcset="/img/loading.gif" lazyload alt="Maglev 分层编译示意图"></p>
+<p>V8 还包含对象模型、垃圾回收、内置函数、嵌入接口和安全机制；WebAssembly 则有以 Liftoff 为基线编译器的独立流水线。分层也不是免费午餐：新增层次需要更多切换与维护逻辑，只有当省下的执行时间能覆盖编译和内存成本时，才值得启用。</p>
+<h2 id="Refs">Refs</h2>
+<blockquote>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://googleblog.blogspot.com/2008/09/fresh-take-on-browser.html">https://googleblog.blogspot.com/2008/09/fresh-take-on-browser.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://googleblog.blogspot.com/2009/05/2008-founders-letter.html">https://googleblog.blogspot.com/2009/05/2008-founders-letter.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://charlesreis.com/research/publications/UW-CSE-07-12-01.pdf">https://charlesreis.com/research/publications/UW-CSE-07-12-01.pdf</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.adambarth.com/papers/2008/barth-jackson-reis.pdf">https://www.adambarth.com/papers/2008/barth-jackson-reis.pdf</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.chromium.org/2008/09/multi-process-architecture.html">https://blog.chromium.org/2008/09/multi-process-architecture.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/34924.pdf">https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/34924.pdf</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.chromium.org/developers/design-documents/multi-process-architecture/how-to-add-new-features/">https://www.chromium.org/developers/design-documents/multi-process-architecture/how-to-add-new-features/</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/chromium/chromium/blob/main/content/README.md">https://github.com/chromium/chromium/blob/main/content/README.md</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.chromium.org/2008/09/chrome-3s-webkit.html">https://blog.chromium.org/2008/09/chrome-3s-webkit.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://trac.webkit.org/wiki/WebKit2">https://trac.webkit.org/wiki/WebKit2</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/chromium/chromium/blob/main/docs/mojo_ipc_conversion.md">https://github.com/chromium/chromium/blob/main/docs/mojo_ipc_conversion.md</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1wAHLw9h7gGuqJNCgG1mP1BmLtCGfZ2pys-PdZQ1vg7M/edit?tab=t.0">https://docs.google.com/document/d/1wAHLw9h7gGuqJNCgG1mP1BmLtCGfZ2pys-PdZQ1vg7M/edit?tab=t.0</a></li>
+<li><a target="_blank" rel="noopener" href="https://v8.dev/blog/maglev">https://v8.dev/blog/maglev</a></li>
+<li><a target="_blank" rel="noopener" href="https://whisper3zzz.top/posts/cross-language-call">https://whisper3zzz.top/posts/cross-language-call</a></li>
+</ol>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E5%90%91/" class="category-chain-item">技术向</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/chromium/" class="print-no-link">#chromium</a>
+      
+        <a href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" class="print-no-link">#浏览器</a>
+      
+        <a href="/tags/%E6%9E%B6%E6%9E%84/" class="print-no-link">#架构</a>
+      
+        <a href="/tags/V8/" class="print-no-link">#V8</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Chromium进化论</div>
+      <div>http://blog.bluspace.ren/2026/10/15/Chromium进化论/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Blauter</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年10月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/07/%E3%80%90%E4%BC%AA%E9%80%86%E5%90%91%E3%80%91Project%20Fortify%E7%9A%84AI%E8%83%BD%E5%8A%9B%E8%AE%A9%E8%B0%B7%E6%AD%8C%E5%B0%91%E5%87%BA%E4%BA%86%E5%A4%9A%E5%B0%91%E5%A5%96%E9%87%91%EF%BC%9F/" title="【伪逆向】Project Fortify的AI能力让谷歌少出了多少奖金？">
+                        <span class="hidden-mobile">【伪逆向】Project Fortify的AI能力让谷歌少出了多少奖金？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"euLX4zhZFhWzYx9uVn1WRoyf-gzGzoHsz","appKey":"QPSYlNxbkCar1LhSZqLt3YYY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
